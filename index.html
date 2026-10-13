@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para mi amor ❤️</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #2b0b1e 0%, #12050e 100%);
+      --card-bg: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 182, 193, 0.2);
+      --primary: #ff4b72;
+      --primary-hover: #ff2a55;
+      --accent: #ffd1dc;
+      --text: #ffffff;
+      --text-muted: #e0b0bc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-gradient); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-x: hidden; position: relative; }
+    
+    .bg-stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+    .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--duration) infinite ease-in-out; opacity: 0.3; }
+    @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1.2); } }
+    
+    .music-btn { position: fixed; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.15); border: 1px solid var(--card-border); backdrop-filter: blur(10px); padding: 10px 16px; border-radius: 30px; color: white; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .container { width: 100%; max-width: 500px; z-index: 1; display: flex; flex-direction: column; gap: 25px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(16px); border-radius: 24px; padding: 28px 22px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); animation: fadeIn 0.8s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    h1 { font-size: 2.5rem; color: var(--accent); margin-bottom: 5px; text-shadow: 0 0 10px rgba(255, 75, 114, 0.5); }
+    .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 300; }
+    .badge { display: inline-block; background: rgba(255, 75, 114, 0.2); border: 1px solid rgba(255, 75, 114, 0.4); color: #ff9ebb; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; margin-bottom: 15px; }
+    
+    .quiz-container { display: flex; flex-direction: column; gap: 15px; text-align: left; }
+    .question-title { font-size: 1.05rem; color: var(--accent); margin-bottom: 8px; font-weight: 600; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .btn-option { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: white; padding: 12px 16px; border-radius: 14px; cursor: pointer; font-size: 0.9rem; text-align: left; width: 100%; transition: all 0.2s; }
+    .btn-option.correct { background: rgba(46, 213, 115, 0.25) !important; border-color: #2ed573 !important; color: #7bed9f; }
+    .btn-option.incorrect { background: rgba(255, 71, 87, 0.25) !important; border-color: #ff4757 !important; color: #ff6b81; }
+    .feedback { font-size: 0.85rem; margin-top: 5px; min-height: 20px; font-weight: 300; }
+    
+    .coupons-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+    .coupon-card { background: rgba(0, 0, 0, 0.25); border: 1px dashed var(--accent); border-radius: 16px; padding: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .coupon-info { text-align: left; }
+    .coupon-title { font-size: 1rem; color: var(--accent); font-weight: 600; margin-bottom: 2px; }
+    .coupon-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .coupon-btn.redeemed { background: rgba(255, 255, 255, 0.15); color: #aaa; cursor: default; }
+    
+    /* Pregunta con botón huidizo */
+    .proposal-box { margin-top: 10px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
+    .proposal-buttons { display: flex; gap: 20px; justify-content: center; align-items: center; position: relative; width: 100%; min-height: 80px; margin-top: 10px; }
+    .btn-yes { background: #2ed573; color: white; border: none; padding: 12px 25px; border-radius: 30px; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(46, 213, 115, 0.4); z-index: 2; }
+    .btn-no { background: #ff4757; color: white; border: none; padding: 12px 25px; border-radius: 30px; font-size: 1rem; font-weight: bold; cursor: pointer; position: absolute; transition: all 0.15s ease-out; z-index: 3; }
+
+    /* Estilos de la Galería de Fotos (Cuadrícula 2x2) */
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+    .gallery-item { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--card-border); background: rgba(0, 0, 0, 0.3); aspect-ratio: 1 / 1; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .gallery-item:hover img { transform: scale(1.05); }
+
+    .letter-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .envelope-btn { background: linear-gradient(135deg, #ff4b72, #ff758c); border: none; color: white; padding: 16px 28px; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(255, 75, 114, 0.4); }
+    .letter-content { display: none; background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 15px; }
+    .letter-text { font-size: 2rem; line-height: 1.4; color: var(--accent); margin-bottom: 15px; }
+    .whatsapp-btn { display: inline-block; background: #25d366; color: white; text-decoration: none; padding: 10px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .footer-msg { font-size: 0.75rem; color: var(--text-muted); margin-top: 20px; text-align: center; opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div class="bg-stars" id="starsContainer"></div>
+  
+  <audio id="bgMusic" loop preload="auto">
+    <source src="https://assets.mixkit.co/music/preview/mixkit-romantic-sunset-688.mp3" type="audio/mpeg">
+  </audio>
+  
+  <button class="music-btn" id="musicToggle">
+    <span id="musicIcon">🎵</span> <span id="musicText">Música</span>
+  </button>
+  
+  <div class="container">
+    <div class="card">
+      <div class="badge">Especial para ti</div>
+      <h1>Para mi amor ❤️</h1>
+      <p class="subtitle">El próximo martes... 🗓️ (o cuando tú quieras)</p>
+      <p style="font-size: 0.9rem; font-weight: 300;">He preparado esta pequeña sorpresa interactiva solo para ti. ¡Responde el test para desbloquear tus regalos!</p>
+    </div>
+    
+    <div class="card">
+      <h2 style="font-size: 1.3rem; margin-bottom: 20px; color: var(--accent);">¿Cuánto nos conocemos? 🎯</h2>
+      <div class="quiz-container" id="quizContainer">
+        <div class="question-block" id="q1">
+          <p class="question-title">1. ¿Cuál es mi parte favorita de tu cuerpo?</p>
+          <div class="options">
+            <button class="btn-option" onclick="checkAnswer('q1', false, this)">Tus ojos</button>
+            <button class="btn-option" onclick="checkAnswer('q1', false, this)">Tu sonrisa</button>
+            <button class="btn-option" onclick="checkAnswer('q1', true, this)">Tus pies 🦶✨</button>
+          </div>
+          <p class="feedback" id="f-q1"></p>
+        </div>
+        
+        <div class="question-block" id="q2" style="display: none;">
+          <p class="question-title">2. ¿Quién quiere más al otro?</p>
+          <div class="options">
+            <button class="btn-option" onclick="checkAnswer('q2', false, this)">Tú a mí</button>
+            <button class="btn-option" onclick="checkAnswer('q2', false, this)">Yo a ti</button>
+            <button class="btn-option" onclick="checkAnswer('q2', true, this)">Los dos 🫀</button>
+          </div>
+          <p class="feedback" id="f-q2"></p>
+        </div>
+        
+        <div class="question-block" id="q3" style="display: none;">
+          <p class="question-title">3. ¿Cuál es el mejor momento que hemos pasado juntos?</p>
+          <div class="options">
+            <button class="btn-option" onclick="checkAnswer('q3', false, this)">Los viajes al pueblo</button>
+            <button class="btn-option" onclick="checkAnswer('q3', false, this)">Las cenas juntos</button>
+            <button class="btn-option" onclick="checkAnswer('q3', true, this)">Cualquier día porque te amo ❤️</button>
+          </div>
+          <p class="feedback" id="f-q3"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="couponsSection" style="display: none;">
+      <h2 style="font-size: 1.3rem; margin-bottom: 5px; color: var(--accent);">Tus Vales Especiales 🎟️</h2>
+      <p class="subtitle" style="margin-bottom: 15px;">Canjea estos vales cuando más te apetezca:</p>
+      <div class="coupons-grid">
+        <div class="coupon-card">
+          <div class="coupon-info"><div class="coupon-title">Sopita y brownie juntos 🥣🧁</div></div>
+          <button class="coupon-btn" onclick="redeemCoupon(this, 'Sopita y brownie juntos')">Canjear</button>
+        </div>
+        <div class="coupon-card">
+          <div class="coupon-info"><div class="coupon-title">Muchísimos besitos 💋</div></div>
+          <button class="coupon-btn" onclick="redeemCoupon(this, 'Muchísimos besitos')">Canjear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="proposalSection" style="display: none;">
+      <h2 style="font-size: 1.3rem; margin-bottom: 10px; color: var(--accent);">Una última pregunta... 💍</h2>
+      <p class="question-title" style="text-align: center; margin-bottom: 15px;">¿Quieres estar conmigo toda la vida?</p>
+      <div class="proposal-box">
+        <div class="proposal-buttons" id="proposalButtons">
+          <button class="btn-yes" onclick="sayYes()">¡SÍ, CLARO QUE SÍ! ❤️</button>
+          <button class="btn-no" id="btnNo" onmouseover="moveNo()" ontouchstart="moveNo()" onclick="moveNo()">No</button>
+        </div>
+        <p class="feedback" id="proposalFeedback" style="font-weight: 500; color: var(--accent); margin-top: 10px;"></p>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE GALERÍA CON VUESTRAS 4 FOTOS Y CARTA DE AMOR -->
+    <div class="card" id="letterSection" style="display: none;">
+      <h2 style="font-size: 1.3rem; margin-bottom: 10px; color: var(--accent);">Nuestros Recuerdos 📸</h2>
+      <p class="subtitle" style="margin-bottom: 10px;">Algunos de nuestros momentos favoritos juntos...</p>
+      
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="https://i.ibb.co/Y4yvmg2f/photo1.jpg" alt="Recuerdo 1">
+        </div>
+        <div class="gallery-item">
+          <img src="https://i.ibb.co/4RnXMJ4V/photo2.jpg" alt="Recuerdo 2">
+        </div>
+        <div class="gallery-item">
+          <img src="https://i.ibb.co/S4GxP5rd/photo3.jpg" alt="Recuerdo 3">
+        </div>
+        <div class="gallery-item">
+          <img src="https://i.ibb.co/TD1rY4FB/photo4.jpg" alt="Recuerdo 4">
+        </div>
+      </div>
+
+      <div class="letter-container" style="margin-top: 25px;">
+        <p style="font-size: 0.95rem; font-weight: 300;">Tienes un último mensaje esperando...</p>
+        <button class="envelope-btn" onclick="openLetter()">💌 Abrir Carta</button>
+        <div class="letter-content" id="letterContent">
+          <p class="letter-text">Te amo hasta la luna 🌙</p>
+          <a href="https://wa.me/?text=¡He%20completado%20el%20quiz%20y%20he%20dicho%20que%20SÍ!%20Te%20amo%20hasta%20la%20luna%20🌙" class="whatsapp-btn" target="_blank">Responder por WhatsApp 💬</a>
+        </div>
+      </div>
+    </div>
+    
+    <p class="footer-msg">Hecho con todo el amor del mundo para ti ❤️</p>
+  </div>
+
+  <script>
+    const starsContainer = document.getElementById('starsContainer');
+    for (let i = 0; i < 40; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.width = `${Math.random() * 3 + 1}px`;
+      star.style.height = star.style.width;
+      star.style.top = `${Math.random() * 100}%`;
+      star.style.left = `${Math.random() * 100}%`;
+      star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+      starsContainer.appendChild(star);
+    }
+    
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+    const musicIcon = document.getElementById('musicIcon');
+    const musicText = document.getElementById('musicText');
+    let isPlaying = false;
+    
+    musicToggle.addEventListener('click', () => {
+      if (isPlaying) { bgMusic.pause(); musicIcon.textContent = '🎵'; musicText.textContent = 'Música'; }
+      else { bgMusic.play().catch(() => {}); musicIcon.textContent = '🔊'; musicText.textContent = 'Sonando'; }
+      isPlaying = !isPlaying;
+    });
+
+    function checkAnswer(qId, isCorrect, btn) {
+      const feedback = document.getElementById(`f-${qId}`);
+      const parent = document.getElementById(qId);
+      const buttons = parent.querySelectorAll('.btn-option');
+      buttons.forEach(b => b.style.pointerEvents = 'none');
+      if (isCorrect) {
+        btn.classList.add('correct');
+        feedback.style.color = '#7bed9f';
+        feedback.textContent = '¡Correcto! ❤️';
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+        setTimeout(() => {
+          if (qId === 'q1') document.getElementById('q2').style.display = 'block';
+          else if (qId === 'q2') document.getElementById('q3').style.display = 'block';
+          else if (qId === 'q3') unlockRewards();
+        }, 1200);
+      } else {
+        btn.classList.add('incorrect');
+        feedback.style.color = '#ff6b81';
+        feedback.textContent = '¡Casiii! Inténtalo otra vez 😉';
+        setTimeout(() => {
+          buttons.forEach(b => { b.style.pointerEvents = 'auto'; b.classList.remove('incorrect'); });
+          feedback.textContent = '';
+        }, 1500);
+      }
+    }
+
+    function unlockRewards() {
+      const coupons = document.getElementById('couponsSection');
+      const proposal = document.getElementById('proposalSection');
+      coupons.style.display = 'block'; 
+      proposal.style.display = 'block';
+      confetti({ particleCount: 100, spread: 100, origin: { y: 0.6 } });
+      coupons.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function redeemCoupon(btn, title) {
+      btn.textContent = '¡Canjeado! ✓'; btn.classList.add('redeemed'); btn.onclick = null;
+      confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+      alert(`¡Vale canjeado para "${title}"! Te debo este detalle en cuanto nos veamos ❤️`);
+    }
+
+    const noMessages = [
+      "¡Ay! El botón se ha escapado 🏃💨",
+      "¿Estás seguraaa? Piénsalo bien 🤭",
+      "¡Esa opción está prohibida! Jajaja",
+      "Prueba a darle al verde, te va a gustar más ❤️",
+      "¡Casi me pillas! Pero no vas a poder 😜"
+    ];
+
+    function moveNo() {
+      const btnNo = document.getElementById('btnNo');
+      const feedback = document.getElementById('proposalFeedback');
+      const randomX = (Math.random() - 0.5) * 200;
+      const randomY = (Math.random() - 0.5) * 120;
+      btnNo.style.transform = `translate(${randomX}px, ${randomY}px)`;
+      const randomMsg = noMessages[Math.floor(Math.random() * noMessages.length)];
+      feedback.textContent = randomMsg;
+    }
+
+    function sayYes() {
+      document.getElementById('btnNo').style.display = 'none';
+      const feedback = document.getElementById('proposalFeedback');
+      feedback.style.color = '#7bed9f';
+      feedback.textContent = '¡SABÍA QUE DIRÍAS QUE SÍ! Te amo con locura ❤️💍';
+      const letter = document.getElementById('letterSection');
+      letter.style.display = 'block';
+      confetti({ particleCount: 150, spread: 120, origin: { y: 0.5 } });
+      letter.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function openLetter() {
+      document.getElementById('letterContent').style.display = 'block';
+      confetti({ particleCount: 80, spread: 80, origin: { y: 0.8 } });
+    }
+  </script>
+</body>
+</html>
